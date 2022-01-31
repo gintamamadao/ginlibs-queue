@@ -2,7 +2,7 @@ import { isFunc } from 'ginlibs-type-check'
 import { Lock } from 'ginlibs-lock'
 import { sleep } from 'ginlibs-utils'
 
-class EventQueue {
+export class EventQueue {
   private eventList: AnyFunction[] = []
   private lockKey = 'pause'
   private stopKey = 'stop'
