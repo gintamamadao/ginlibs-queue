@@ -69,6 +69,5 @@
     "ginlibs-type-check": "^2.0.0",
     "ginlibs-lock": "^1.0.0",
     "ginlibs-utils": "^1.0.0"
-  },
-  "gitHead": "d5d2e52c476194fd1e3ec5e0108ffedda5dfac19"
+  }
 }
