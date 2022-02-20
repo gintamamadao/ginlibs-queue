@@ -167,4 +167,21 @@ describe('串行队列事件', () => {
     await bl.getLock()
     expect(str).toBe('123')
   })
+
+  test('事件为空的情况', async () => {
+    const ap: any = new EventQueue()
+    const al = new AsyncLock()
+    let str = ''
+    const fn = (v: string) => {
+      str += v
+    }
+    ap.add(() => fn('1'), 20)
+    ap.eventList.push('')
+    ap.add(() => fn('2'))
+      .add(() => al.unLock())
+      .trigger()
+
+    await al.getLock()
+    expect(str).toBe('12')
+  })
 })

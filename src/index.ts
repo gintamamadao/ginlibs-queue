@@ -34,8 +34,10 @@ export class EventQueue {
   public add = (fn: AnyFunction, interval = 0) => {
     const event = async () => {
       // 前面加上异步的话结果会不好预测
-      await fn()
-      await sleep(interval)
+      if (isFunc(fn)) {
+        await fn()
+        await sleep(interval)
+      }
     }
     this.eventList.push(event)
     return this
