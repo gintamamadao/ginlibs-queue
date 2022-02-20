@@ -149,7 +149,10 @@ describe('串行队列事件', () => {
       str += v
     }
     q.add(() => fn('1'), 20)
-      .add(() => al.unLock())
+      .add(() => {
+        q.pause()
+        al.unLock()
+      })
       .add(() => fn('2'))
       .add(() => fn('3'))
       .add(() => bl.unLock())
@@ -157,7 +160,6 @@ describe('串行队列事件', () => {
 
     await al.getLock()
     expect(str).toBe('1')
-    q.pause()
     q.trigger()
 
     await al.lockTime(40)
@@ -183,5 +185,25 @@ describe('串行队列事件', () => {
 
     await al.getLock()
     expect(str).toBe('12')
+  })
+
+  test('事件结果传递', async () => {
+    const ap: any = new EventQueue()
+    const al = new AsyncLock()
+    let str = ''
+    const fn = (v: string) => {
+      str += v
+      return str
+    }
+    ap.add(() => {
+      return fn('1')
+    }, 20)
+      .add(fn)
+      .add(fn)
+      .add(() => al.unLock())
+      .trigger()
+
+    await al.getLock()
+    expect(str).toBe('1111')
   })
 })
