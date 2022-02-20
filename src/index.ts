@@ -2,29 +2,30 @@ import { isFunc } from 'ginlibs-type-check'
 import { Lock } from 'ginlibs-lock'
 import { sleep } from 'ginlibs-utils'
 
+const LOCK_KEY = 'pause'
+const STOP_KEY = 'stop'
+
 export class EventQueue {
   private eventList: AnyFunction[] = []
-  private lockKey = 'pause'
-  private stopKey = 'stop'
   private lock: Lock = new Lock()
 
   public trigger = () => {
     if (
       this.eventList.length <= 0 ||
-      this.lock.isLocked(this.lockKey) ||
-      this.lock.isLocked(this.stopKey)
+      this.lock.isLocked(LOCK_KEY) ||
+      this.lock.isLocked(STOP_KEY)
     ) {
       return this
     }
-    this.lock.lock(this.lockKey)
+    this.lock.lock(LOCK_KEY)
     const event = this.eventList.shift()
     if (event && isFunc(event)) {
       Promise.resolve(event()).then(() => {
-        this.lock.unLock(this.lockKey)
+        this.lock.unLock(LOCK_KEY)
         this.trigger()
       })
     } else {
-      this.lock.unLock(this.lockKey)
+      this.lock.unLock(LOCK_KEY)
       this.trigger()
     }
     return this
@@ -47,23 +48,23 @@ export class EventQueue {
 
   public stop = () => {
     this.empty()
-    this.lock.lock(this.stopKey)
+    this.lock.lock(STOP_KEY)
     return this
   }
 
   public restart = () => {
     this.empty()
-    this.lock.unLock(this.stopKey)
+    this.lock.unLock(STOP_KEY)
     return this
   }
 
   public pause = () => {
-    this.lock.lock(this.stopKey)
+    this.lock.lock(STOP_KEY)
     return this
   }
 
   public continus = () => {
-    this.lock.unLock(this.stopKey)
+    this.lock.unLock(STOP_KEY)
     this.trigger()
     return this
   }
